@@ -3,7 +3,6 @@
 require_once "DBInit.php";
 
 class Baza {
-
     public static function insert($username, $password, $ime, $priimek, $urnaPostavka, $aktiven, $datumPrekinitveDela, $dobilZadnjoPlaco){
         $db = DBInit::getInstance();
         $statement = $db->prepare("INSERT INTO uporabniki (username, pass, ime, priimek, urnaPostavka, aktiven, datumPrekinitveDela, dobilZadnjoPlaco)
@@ -61,8 +60,6 @@ class Baza {
 
     }
 
-
-
     public static function getAll(){
         $db = DBInit::getInstance();
 
@@ -70,5 +67,95 @@ class Baza {
         $statement->execute();
 
         return $statement->fetchAll();
+    }
+
+    public static function getUrnaPostavka($userID){
+        $db = DBInit::getInstance();
+
+        $statement = $db->prepare("SELECT urnaPostavka from uporabniki where IDUser = :userID");
+        $statement->bindParam(":userID", $userID);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return $result[0];
+    }
+
+    public static function getOpravljeneUre($userID, $mesec, $leto){
+        $db = DBInit::getInstance();
+
+        $statement = $db->prepare("SELECT * from prisotnosti where UserID = :userID AND month(casPrihoda) = :mesec AND year(casPrihoda) = :leto");
+        $statement->bindParam(":userID", $userID);
+        $statement->bindParam(":mesec", $mesec);
+        $statement->bindParam(":leto", $leto);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        $ure = 0;
+        foreach ($result as $vnos) {
+            $date = strtotime($vnos["casPrihoda"]);
+            $date2 = strtotime($vnos["casOdhoda"]);
+
+            $razlika = $date2 - $date;
+            $ure += $razlika;
+        }
+        $opUre = round($ure / 3600);
+        //echo "V mescu " . $mesec . " si opravil " . $opUre . " ur.";
+
+        return $opUre;
+    }
+
+    public static function getDniPrisotnosti($userID, $mesec, $leto){
+        $db = DBInit::getInstance();
+
+        $statement = $db->prepare("SELECT * from prisotnosti where UserID = :userID AND month(casPrihoda) = :mesec AND year(casPrihoda) = :leto");
+        $statement->bindParam(":userID", $userID);
+        $statement->bindParam(":mesec", $mesec);
+        $statement->bindParam(":leto", $leto);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return count($result);
+
+    }
+
+    public static function getKoeficient($tipOdsotnosti){
+        $db = DBInit::getInstance();
+
+        $statement = $db->prepare("SELECT koeficient from tipiodsotnosti where tipOdsotnosti = :tipOdsotnosti");
+        $statement->bindParam(":tipOdsotnosti", $tipOdsotnosti);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result[0];
+    }
+
+    public static function getPrispevkiOdsotnosti($userID, $mesec, $leto){
+        $db = DBInit::getInstance();
+
+        $statement = $db->prepare("SELECT * from odsotnosti where UserID = :userID AND month(datumOdsotnosti) = :mesec AND year(datumOdsotnosti) = :leto");
+        $statement->bindParam(":userID", $userID);
+        $statement->bindParam(":mesec", $mesec);
+        $statement->bindParam(":leto", $leto);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        
+        $urnaPostavka = Baza::getUrnaPostavka($userID)["urnaPostavka"];
+        
+        //TODO: if null;
+        $naDan = $urnaPostavka * 8;
+        $skupno = 0;
+        foreach ($result as $vnos) {
+            $koeficient = Baza::getKoeficient($vnos["tipOdsotnosti"])["koeficient"];
+            $skupno += ($naDan * $koeficient);
+        }
+        return $skupno;
+
+    }
+
+    public static function getIzracunanaPlaca($urnaPostavka, $opravljeneUre, $dniPrisotnosti, $prispevkiOdsotnosti, $malca = 5.5){
+        $placa = 0;
+        $placa += ($opravljeneUre * $urnaPostavka);
+        $placa += ($dniPrisotnosti * $malca);
+        $placa += $prispevkiOdsotnosti;
+        
+        return $placa;
     }
 }

@@ -75,7 +75,10 @@ $userID = $_SESSION["all"][0]["IDUser"]
 
     <?php
     if (!empty($podatki) || !empty($odsotnost)) {
-        echo '<button>Izračunaj plačo</button>';
+        echo '
+        <form action ="calculate.php" method="post">
+        <button>Izračunaj plačo</button>
+        </form>';
     }
     ?>
     
