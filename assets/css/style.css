@@ -1,0 +1,47 @@
+body {
+  background-image: url("../bg.jpg");
+  background-size: cover;
+}
+
+#accModalLabel {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.modalButtonColor {
+  background-color: #2f6568;
+  font-weight: bold;
+}
+
+.opacityLess {
+  background-color: white;
+  opacity: 0.4;
+  /* height: 500px; */
+  margin-top: -27px;
+}
+
+.empty {
+  font-size: 25px;
+}
+
+.fontS {
+  font-size: 40px;
+}
+
+table {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+th {
+  text-transform: uppercase;
+  width: 300px;
+}
+
+.gumb {
+  width: 70%;
+  height: 50px;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+}
