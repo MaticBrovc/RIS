@@ -10,21 +10,29 @@ $userID = $_SESSION["all"][0]["IDUser"];
 echo $user . " " . $userID . '<br>';
 //TODO: if null;
 $urnaPostavka = Baza::getUrnaPostavka($userID)["urnaPostavka"];
-echo $urnaPostavka . "<br>";
+if ($urnaPostavka == NULL) {
+    $_SESSION["urnaError"] = 1;
+    header("Location: homepage.php");
+}
+else{
+    $_SESSION["urnaError"] = 0;
 
-//TODO potrebno dodati, da se mesec in leto vnašata preko vmesnika!
-$opUre = Baza::getOpravljeneUre($userID, 4, 2021);
-//var_dump($result);
+    echo $urnaPostavka . "<br>";
 
-//TODO
-$dniPrisotnosti = Baza::getDniPrisotnosti($userID, 4, 2021);
-//echo $dniPrisotnosti;
+    //TODO potrebno dodati, da se mesec in leto vnašata preko vmesnika!
+    $opUre = Baza::getOpravljeneUre($userID, 4, 2021);
+    //var_dump($result);
 
-$skupno = Baza::getPrispevkiOdsotnosti($userID, 4, 2021);
-//echo $skupno;
+    //TODO
+    $dniPrisotnosti = Baza::getDniPrisotnosti($userID, 4, 2021);
+    //echo $dniPrisotnosti;
 
-//Na koncu je vnaprej definiran parameter malca, ki je nastavljen na 5.5€ na/dan.
-$palca = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
-echo "Plača: " . $palca;
+    $skupno = Baza::getPrispevkiOdsotnosti($userID, 4, 2021);
+    //echo $skupno;
+
+    //Na koncu je vnaprej definiran parameter malca, ki je nastavljen na 5.5€ na/dan.
+    $palca = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
+    echo "Plača: " . $palca;
+}
 
 ?>

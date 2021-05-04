@@ -18,13 +18,13 @@ $userID = $_SESSION["all"][0]["IDUser"]
 </head>
 <body>
     <?php
+    // TODO v tem primeru nej se prikaže modal z napako
+    if (isset($_SESSION["urnaError"]) && $_SESSION["urnaError"] == 1) {
+        echo '<h1>Napaka! Ni urne postavke</h1>';
+    }
     $podatki = Baza::getSeznamPrisotnosti($userID);
     if (!empty($podatki)) {
         ?>
-
-
-
-
         <div class="container mt-5">
             <div class="row ">
                 <div class="col-12 text-center bg-light rounded-pill  mb-5 shadow fontS" style="z-index: 9;display: flex;justify-content: space-around;"><img src="assets/user.png" style="width:50px;"> Welcome <?=$user; ?> <img src="assets/user.png" style="width:50px;"> </div>
