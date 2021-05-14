@@ -111,7 +111,6 @@ class Baza {
         $statement->bindParam(":leto", $leto);
         $statement->execute();
         $result = $statement->fetchAll();
-
         return count($result);
 
     }
@@ -157,5 +156,32 @@ class Baza {
         $placa += $prispevkiOdsotnosti;
         
         return $placa;
+    }
+
+    public static function getPlacilnaLista($userID, $mesec, $leto){
+
+        $db = DBInit::getInstance();
+        //SELECT * FROM `placilneliste` WHERE UserID = 2 and MONTH(datumIzracuna) = 5 and YEAR(datumIzracuna) = 2021
+        $statement = $db->prepare("SELECT * from placilneliste where UserID = :userID AND mesec = :mesec AND leto = :leto");
+        $statement->bindParam(":userID", $userID);
+        $statement->bindParam(":mesec", $mesec);
+        $statement->bindParam(":leto", $leto);
+        $statement->execute();
+        $result = $statement->fetchAll();
+
+        return $result;
+    }
+
+    public static function savePlacilnaLista($userID, $placa, $mesec, $leto){
+        $db = DBInit::getInstance();
+        $dat = date("Y-m-d");
+        $statement = $db->prepare("INSERT INTO placilneliste (datumIzracuna, UserID, placa, mesec, leto)
+            VALUES (:datumizracuna, :userID, :placa, :mesec, :leto)");
+        $statement->bindParam(":datumizracuna", $dat);
+        $statement->bindParam(":userID", $userID);
+        $statement->bindParam(":placa", $placa);
+        $statement->bindParam(":mesec", $mesec);
+        $statement->bindParam(":leto", $leto);
+        $statement->execute();
     }
 }
