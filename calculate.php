@@ -43,6 +43,7 @@ else{
     else{
         $placilnaLista = Baza::getPlacilnaLista($userID, $mesec, $leto);
         if (count($placilnaLista) < 1) {
+            //V primeru, da še ni v bazi
             $opUre = Baza::getOpravljeneUre($userID, $mesec, $leto);
             //var_dump($result);
 
@@ -60,6 +61,7 @@ else{
             echo "Izračunana plača je zapisana v Bazo";
         }
         else{
+            //V primeru, da je.
             var_dump($placilnaLista);
         }
     }
