@@ -53,11 +53,5 @@ $(window).on("load", function () {
 		</div>
 	</div>
 </div>
-
-<ul>
-    <?php foreach (Baza::getAll() as $user): ?>
-        <li><?= $user["username"] ?>: <?= $user["pass"] ?></a></li>
-    <?php endforeach; ?>
-</ul>
 </body>
 </html>

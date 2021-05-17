@@ -21,14 +21,20 @@ $userID = $_SESSION["all"][0]["IDUser"]
     <?php
     // TODO v tem primeru nej se prikaže modal z napako
     if (isset($_SESSION["urnaError"]) && $_SESSION["urnaError"] == 1) {
-        echo '<h1>Napaka! Ni urne postavke</h1>';
+        echo '<h1 style="color:red;">Napaka! Ni urne postavke</h1>';
     }
+    ?>
+    <div class="container mt-5">
+            <div class="row ">
+                <div class="col-12 text-center bg-light rounded-pill  mb-5 shadow fontS" style="z-index: 9;display: flex;justify-content: space-around;"><img src="assets/user.png" style="width:50px;"> Welcome <?=$user; ?> <a href="index.php"><img src="assets/logout.png" style="width:50px; margin-bottom: 5px;"></a></div>
+
+    <?php
     $podatki = Baza::getSeznamPrisotnosti($userID);
     if (!empty($podatki)) {
         ?>
-        <div class="container mt-5">
+        <!-- <div class="container mt-5">
             <div class="row ">
-                <div class="col-12 text-center bg-light rounded-pill  mb-5 shadow fontS" style="z-index: 9;display: flex;justify-content: space-around;"><img src="assets/user.png" style="width:50px;"> Welcome <?=$user; ?> <img src="assets/user.png" style="width:50px;"> </div>
+                <div class="col-12 text-center bg-light rounded-pill  mb-5 shadow fontS" style="z-index: 9;display: flex;justify-content: space-around;"><img src="assets/user.png" style="width:50px;"> Welcome <?=$user; ?> <a href="index.php"><img src="assets/logout.png" style="width:50px; margin-bottom: 5px;"></a></div> -->
                 <div class="col-12 text-center bg-light rounded-top shadow fontS" style="z-index: 9;display: flex;justify-content: space-around;">
                     Prisotnosti
                 </div>
@@ -55,7 +61,10 @@ $userID = $_SESSION["all"][0]["IDUser"]
     <?php
     }
     else{
-        ?> 
+        ?>
+        </div>
+        </div>
+        </div> 
         <div class="container mt-5">
             <div class="row ">
                 <div class="col-12 text-center bg-light rounded-top shadow fontS" style="z-index: 9;display: flex;justify-content: space-around;">

@@ -20,7 +20,7 @@ class Baza {
 
     public static function confirmLogin($username, $password){
         $db = DBInit::getInstance();
-        $statement = $db->prepare("SELECT IDUser, username, pass from uporabniki WHERE username = :user AND pass = :pass");
+        $statement = $db->prepare("SELECT IDUser, username, pass, aktiven, datumPrekinitveDela, dobilZadnjoPlaco from uporabniki WHERE username = :user AND pass = :pass");
         $statement->bindParam(":user", $username);
         $statement->bindParam(":pass", $password);
         $statement->execute();
@@ -31,6 +31,7 @@ class Baza {
         }
         else{
             session_start();
+            $_SESSION["urnaError"] = 0;
             $_SESSION["user"] = $username;
             $_SESSION["all"] = $result;
             header("Location: homepage.php");
@@ -183,5 +184,16 @@ class Baza {
         $statement->bindParam(":mesec", $mesec);
         $statement->bindParam(":leto", $leto);
         $statement->execute();
+    }
+
+    public static function getLastPay($userID){
+        $db = DBInit::getInstance();
+        $statement = $db->prepare("SELECT * from placilneliste where UserID = :userID ORDER BY datumIzracuna DESC LIMIT(1)");
+        $statement->bindParam(":userID", $userID);
+        $statement->execute();
+
+        $result = $statement->fetchAll();
+
+        return $result[0];
     }
 }

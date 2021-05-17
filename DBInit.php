@@ -2,12 +2,12 @@
 
 class DBInit {
 
-    private static $host = "localhost";
-    private static $user = "root";
-    private static $password = "";
-    private static $schema = "ris_baza";
+    private static $host = "remotemysql.com";
+    private static $user = "jSMN5gWYsq";
+    private static $password = "NqmxhOWzGy";
+    private static $schema = "jSMN5gWYsq";
     private static $instance = null;
-
+    
     private function __construct() {
         
     }
@@ -24,17 +24,32 @@ class DBInit {
      * @return PDO instance 
      */
     public static function getInstance() {
+        self::$instance = null;
+        $limit = 10;
+        $counter = 0;
         if (!self::$instance) {
-            $config = "mysql:host=" . self::$host
+            while(true){
+                try{
+                    $config = "mysql:host=" . self::$host
                     . ";dbname=" . self::$schema;
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_PERSISTENT => true,
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-            );
+                    $options = array(
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+                    );
 
-            self::$instance = new PDO($config, self::$user, self::$password, $options);
+                    self::$instance = new PDO($config, self::$user, self::$password, $options);
+                    break;
+                }
+                catch (Exception $e) {
+                self::$instance = null;
+                $counter++;
+                if ($counter == $limit)
+                    throw $e;
+    }
+                
+            }
+            
         }
 
         return self::$instance;

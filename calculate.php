@@ -1,3 +1,8 @@
+<?php
+
+require_once ("baza.php");
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,22 +25,29 @@ $(window).on("load", function () {
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content ">
             <div class="modal-body text-center">
-
+            	
 <?php
-
-require_once ("baza.php");
-session_start();
 
 
 $user = $_SESSION["user"];
 $userID = $_SESSION["all"][0]["IDUser"];
+$aktiven = $_SESSION["all"][0]["aktiven"];
+$datumPrekinitve = $_SESSION["all"][0]["datumPrekinitveDela"];
+$dobilZadnjoPlaco = $_SESSION["all"][0]["dobilZadnjoPlaco"];
 
 echo "<h1 class='username' >Uporabnik: " . $user . '</h1><br>';
 // if null;
 $urnaPostavka = Baza::getUrnaPostavka($userID)["urnaPostavka"];
+?><?php
 if ($urnaPostavka == NULL) {
     $_SESSION["urnaError"] = 1;
-    header("Location: homepage.php");
+    //header("Location: homepage.php");
+    ?>
+    <script>
+        window.location.href = "homepage.php";
+    </script>
+<?php    
+    die();
 }
 else{
     //TODO: Izgled strani.
@@ -49,57 +61,77 @@ else{
     else{$leto = date("Y");}
 
     echo "<h3>Izračun za mesec: <strong>" . $mesec . "</strong> Leta:<strong> ". $leto . "</strong></h3><br>";
-    if ($mesec == date("n") && $leto == date("Y")) {
-        $opUre = Baza::getOpravljeneUre($userID, $mesec, $leto);
-        //var_dump($result);
-
-        $dniPrisotnosti = Baza::getDniPrisotnosti($userID, $mesec, $leto);
-        //echo $dniPrisotnosti;
-
-        $skupno = Baza::getPrispevkiOdsotnosti($userID, $mesec, $leto);
-        //echo $skupno;
-
-        //Na koncu je vnaprej definiran parameter malca, ki je nastavljen na 5.5€ na/dan.
-        $palca = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
-        echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $palca . "€ </strong></div>";
-    }
-    else{
-        $placilnaLista = Baza::getPlacilnaLista($userID, $mesec, $leto);
-        if (count($placilnaLista) < 1) {
-            //V primeru, da še ni v bazi
+    if ($aktiven == 1) {
+        if ($mesec == date("n") && $leto == date("Y")) {
             $opUre = Baza::getOpravljeneUre($userID, $mesec, $leto);
             //var_dump($result);
-
+    
             $dniPrisotnosti = Baza::getDniPrisotnosti($userID, $mesec, $leto);
             //echo $dniPrisotnosti;
-
+    
             $skupno = Baza::getPrispevkiOdsotnosti($userID, $mesec, $leto);
             //echo $skupno;
-
+    
             //Na koncu je vnaprej definiran parameter malca, ki je nastavljen na 5.5€ na/dan.
-            $placa = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
-        echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $placa . "€ </strong></div>";
-
-            Baza::savePlacilnaLista($userID, $placa, $mesec, $leto);
-            echo "<h6 class='text-warning mt-3'>Izračunana plača je zapisana v Bazo</h6>";
+            $palca = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
+            echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $palca . "€ </strong></div>";
         }
         else{
-            //V primeru, da je.
-            echo "Datum izračuna: <strong>" . $placilnaLista[0]["datumIzracuna"] . "</strong>";
+            $placilnaLista = Baza::getPlacilnaLista($userID, $mesec, $leto);
+            if (count($placilnaLista) < 1) {
+                $opUre = Baza::getOpravljeneUre($userID, $mesec, $leto);
+                $dniPrisotnosti = Baza::getDniPrisotnosti($userID, $mesec, $leto);
+                $skupno = Baza::getPrispevkiOdsotnosti($userID, $mesec, $leto);
+                //Na koncu je vnaprej definiran parameter malca, ki je nastavljen na 5.5€ na/dan.
+                $placa = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
+                echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $placa . "€ </strong></div>";
+    
+                if ($placa != 0) {
+                    Baza::savePlacilnaLista($userID, $placa, $mesec, $leto);
+                    echo "<h6 class='text-warning mt-3'>Izračunana plača je zapisana v Bazo</h6>";
+                }
+            }
+            else{
+                //V primeru, da je.
+                echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $placilnaLista[0]["placa"] . "€ </strong></div>";
+                echo "Datum izračuna: <strong>" . $placilnaLista[0]["datumIzracuna"] . "</strong>";
+            }
         }
     }
-    
-    //TODO potrebno dodati, da se mesec in leto vnašata preko vmesnika!
-    
-
+    else{
+        $timestamp = date("Y-m-t", strtotime($datumPrekinitve));
+        $a_date = $leto."-".$mesec."-01";
+        $m_date = date("Y-m-t", strtotime($a_date));
+        $placilnaLista = Baza::getPlacilnaLista($userID, $mesec, $leto);
+        if ($timestamp >= $m_date) {
+            if (count($placilnaLista) < 1) {
+                $opUre = Baza::getOpravljeneUre($userID, $mesec, $leto);
+                $dniPrisotnosti = Baza::getDniPrisotnosti($userID, $mesec, $leto);
+                $skupno = Baza::getPrispevkiOdsotnosti($userID, $mesec, $leto);
+                //Na koncu je vnaprej definiran parameter malca, ki je nastavljen na 5.5€ na/dan.
+                $placa = Baza::getIzracunanaPlaca($urnaPostavka, $opUre, $dniPrisotnosti, $skupno);
+                echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $placa . "€ </strong></div>";
+                if ($placa != 0) {
+                    Baza::savePlacilnaLista($userID, $placa, $mesec, $leto);
+                    echo "<h6 class='text-warning mt-3'>Izračunana plača je zapisana v Bazo</h6>";
+                }
+                
+            }
+            else{
+                echo "<div class='w-100 bg-dark text-light fs-1'> Plača: <strong>" . $placilnaLista[0]["placa"] . "€ </strong></div>";
+                echo "Datum izračuna: <strong>" . $placilnaLista[0]["datumIzracuna"] . "</strong>";
+            }
+        }
+        else{
+            echo "Uporabnik ni več aktiven od: <strong>" . $datumPrekinitve . "</strong>";
+        } 
+    }
     
 }
-
-?>
-            </div>
-            <button onclick="window.location.href='homepage.php' " class="btn w-100 bg-dark text-light fs-2 rounded-0 shadow" id="nazaj"> NAZAJ </button>
-        </div>
+?></div>
+        <button onclick="window.location.href='homepage.php'" class="btn w-100 bg-dark text-light fs-2 rounded-0 shadow" id="nazaj"> NAZAJ </button>
     </div>
+</div>
 </div>
 </body>
 </html>
